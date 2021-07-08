@@ -1,0 +1,8 @@
+*make it more user friendly
+    make so theres only one location to write whatever it is the user wants it to work
+make it work :)
+    figure out what is wrong
+
+    around line 143 through line 158
+
+    mainly has to do with api user entry and why it wont iterate through each thing or just iterate in general
