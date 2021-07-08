@@ -133,14 +133,6 @@ class IntroPage(tk.Tk):
 
          type_field = locator.geocode(locatent.get().lower())
          return type_field.longitude
-
-
-     #string version of location
-    def strLocation(self):
-          location = locatent.get()
-
-          return location.replace(" ", "%20")
-
    
     def typeRetrieval(self):
          type_types = type_entry.get().lower()

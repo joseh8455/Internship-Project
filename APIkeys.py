@@ -5,7 +5,7 @@ def googleKey():
     return 'AIzaSyCRXc9F2Gy1OSvIyKQRgdp1W24ULvYWC-U'
 
 def docuKey():
-    return 'c98668729358f4da9ac47cc3ebafe443'
+    return '925480ed757cabf671abfcb49a9b7430'
 
 def diggerKey():
     return '1cb4b90b8078b87d24aa6b6821993a24'
