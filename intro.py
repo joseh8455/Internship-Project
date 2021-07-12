@@ -6,6 +6,7 @@ from geopy.geocoders import Nominatim
 from requests.api import options
 import restaurant
 import schools
+import colleges
 
 
 class IntroPage(tk.Tk):
@@ -18,6 +19,9 @@ class IntroPage(tk.Tk):
         #window settings for app
         self.tk.title('Baldoor Information Gathering')
         self.tk.geometry('440x500')
+
+        image = tk.PhotoImage(file=r'C:\Users\Jhernandez\Downloads\fixed interface\logo.png')
+        self.tk.iconphoto(False,image)
 
         #labels & entries
         location = tk.Label(self.tk, text="Enter Address to search surrounding area for: ", font= ("Roboto"))
@@ -40,23 +44,23 @@ class IntroPage(tk.Tk):
         type.pack(padx=1, pady=4)
 
         global location_options
-        location_options = ['school','restaurant']
+        location_options = ['school','restaurant', 'university']
         api_formatted_options = '\n'.join(location_options)
-        basic_frame = tk.LabelFrame(self, text="Information retrieval options", font=("Roboto"))
+        basic_frame = tk.LabelFrame(self, text="Information retrieval options", font=("Roboto"), pady=5)
         basic_frame.pack(ipadx=10)
         api_options = tk.Label(basic_frame, text= api_formatted_options, font=("Roboto"))
         api_options.pack()
 
         global type_entry
         type_entry = tk.Entry(self.tk)
-        type_entry.pack(ipadx=80, ipady=5)
+        type_entry.pack(ipadx=80, ipady=5, pady=20)
 
         #button & function calls
         resetButton = tk.Button(self.tk, text="Reset", command = self.resetFunction)
         resetButton.pack(pady = (15,10), padx=(10, 0))
 
         googleButton = tk.Button(self.tk, text= "Gather more information", command= lambda:[self.gatherInfo(), self.emptyFields()])
-        googleButton.pack(pady = (15,10), padx=(10, 0),)
+        googleButton.pack(pady = (15,10), padx=(10, 0))
 
     #command function calls for the buttons
     def resetFunction(self):
@@ -83,6 +87,10 @@ class IntroPage(tk.Tk):
                if type_info == school_type:
                     school_window = schools.SchoolWindow()
                     return school_window.schoolWindow()
+
+         if type_info == "university":
+               college_window = colleges.CollegeWindow()
+               return college_window.CollegeWindow()
 
          # error handling right here
          all_together = [type_info, radius, location]

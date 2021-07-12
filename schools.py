@@ -48,6 +48,7 @@ class SchoolWindow():
         state_code.pack()
 
         state_entry = tk.Entry(self.tk)
+        state_entry.focus()
         state_entry.pack(ipadx=70, pady=20)
 
 
@@ -68,7 +69,7 @@ class SchoolWindow():
         basic_entry = tk.Entry(self.tk, textvariable='goolemapsAPI')
         basic_entry.pack(ipadx=70, pady=20)
 
-        self.google_button = tk.Button(self.tk, text="Display Information", command = lambda: self.GoogleData())
+        self.google_button = tk.Button(self.tk, text="Display Information", command = lambda: self.PrintOut())
         self.google_button.pack(padx=10)
 
     
@@ -81,7 +82,7 @@ class SchoolWindow():
 
         #get all the keys thanks to user entries
         intersection_set = set.intersection(set(more_indepth ), set(user_entry))
-        user_entry = set.intersection(set(basic_info), set(user_entry))
+        user_list = set.intersection(set(basic_info), set(user_entry))
         
         #retrieve information that will be used in the url
         state_info = state_entry.get()
@@ -95,8 +96,7 @@ class SchoolWindow():
 
         #this one is works perfectly fine as is
         df = pd.DataFrame(data['schoolList'])       
-        basic_result = df[list(user_entry)]
-        print (basic_result)
+        basic_result = df[list(user_list)]
 
         #test2
         num_school = -1
@@ -106,6 +106,7 @@ class SchoolWindow():
             num_school+=1
 
             df2 = pd.DataFrame(data['schoolList'][num_school]['schoolYearlyDetails'])
+            print (df2)
             #dump the dataframes created into the list
             dump.append(df2[list(intersection_set)])
 
@@ -160,26 +161,31 @@ class SchoolWindow():
         for i in range(0, len(info_dump)):
             if i == (len(info_dump) - 1):
                 df = pd.DataFrame(info_dump)
-                return print (df)
+                return df
 
 
 
 
-    #print out of the dataframe created above
+    #print out dataframes into an excel sheet
     def PrintOut(self):
    
         writer = pd.ExcelWriter('SchoolData.xlsx', engine='xlsxwriter')
 
+        #information retained from school digger, if you want to buy api license you can get this information and more information (right now just displays dummy data)
         df = self.SchoolData() 
+        df2 = self.GoogleData()
+
         df.to_excel(writer, sheet_name='Information Grabbed', index=False, na_rep='No Data Available')
 
+        df2.to_excel(writer, sheet_name='Google Data', index=False, na_rep='No Data Available')
 
-        for column in df:
-            column_width = max(df[column].astype(str).map(len).max(), len(column))
-            col_idx = df.columns.get_loc(column)
-            writer.sheets['Information Grabbed'].set_column(col_idx, col_idx, column_width)
-        
         writer.save()
+        
+        # #auto adjust rows width in excel
+        # for column in df:
+        #     column_width = max(df[column].astype(str).map(len).max(), len(column))
+        #     col_idx = df.columns.get_loc(column)
+        #     writer.sheets['Information Grabbed'].set_column(col_idx, col_idx, column_width)
 
     #error handling
     

@@ -27,6 +27,7 @@ class RestaurantWindow():
 
         self.tk.title('Baldoor Information Gathering')
         self.tk.geometry('440x500')
+     
 
         global google_opts, api_options_list
         google_opts = ['name', 'type', 'url', 'formatted_address', 'formatted_phone_number', 'price_level', 'rating', 'opening_hours/weekday_text']
@@ -48,8 +49,9 @@ class RestaurantWindow():
         global basic_entry
         basic_entry = tk.Entry(self.tk, textvariable='goolemapsAPI')
         basic_entry.pack(ipadx=70, pady=20)
+        basic_entry.focus()
 
-        self.google_button = tk.Button(self.tk, text="Display Information", command = lambda: self.PrintOut())
+        self.google_button = tk.Button(self.tk, text="Display Information", command = lambda: self.DocuDataParsed())
         self.google_button.pack(padx=10)
 
     def GoogleData(self):
@@ -134,37 +136,20 @@ class RestaurantWindow():
                 menu_links.append(self.menusearch + str(place_ids) + "/menuitems/?key=" + self.doc)
                 menu_links
         
+        #returns the last element in list with all of the links with apis
         for i in range(0, len(menu_links)):
             if i == (len(menu_links) - 1):
                 return menu_links
     
     def DocuDataParsed(self):
-        #find the intersection in user entry that will be used in order to retrieve information respectively
-        entries = basic_entry.get().split()
-        intersection_set = set.intersection(set(entries), set(api_options_list))
-        intersection_list = list(intersection_set)
 
-        #dump
-        parsed_data = []
+        user_entry = basic_entry.get().split()
 
-        for i in self.DocuDataLinks():
-            req = requests.get(i)
-            data = req.json()
-            if data['numResults'] != 0:
+        intersection_set = list(set.intersection(set(api_options_list ), set(user_entry)))
 
-                df = pd.read_json(req.text)
-                DF = pd.DataFrame(df, columns=intersection_list)
-                return DF
-                # for j in data['data']:
-                #     for k in intersection_list:
-                #         df = pd.json_normalize(j[k])
-                #         parsed_data.append(df)
+        interesting = self.DocuDataLinks()
 
-        # for x in range (0, len(parsed_data)):
-        #     if x == ( len(parsed_data) - 1 ):
-        #         return parsed_data
-        
-        #get the last array in the element in order to retrieve more information from it
+        print (interesting)
 
     def PrintOut(self):
 
