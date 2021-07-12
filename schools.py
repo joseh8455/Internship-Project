@@ -1,5 +1,7 @@
+import time
 import tkinter as tk
 
+import googlemaps
 import pandas as pd
 import requests
 
@@ -66,7 +68,7 @@ class SchoolWindow():
         basic_entry = tk.Entry(self.tk, textvariable='goolemapsAPI')
         basic_entry.pack(ipadx=70, pady=20)
 
-        self.google_button = tk.Button(self.tk, text="Display Information", command = lambda: self.PrintOut())
+        self.google_button = tk.Button(self.tk, text="Display Information", command = lambda: self.GoogleData())
         self.google_button.pack(padx=10)
 
     
@@ -94,6 +96,7 @@ class SchoolWindow():
         #this one is works perfectly fine as is
         df = pd.DataFrame(data['schoolList'])       
         basic_result = df[list(user_entry)]
+        print (basic_result)
 
         #test2
         num_school = -1
@@ -117,6 +120,49 @@ class SchoolWindow():
         #this combines the first and second dataframe created into one big dataframe that will be printed out into an excel sheet to use       
         return pd.concat([basic_result, result],axis=1, ignore_index=False)
 
+    def GoogleData(self):
+        #this is just basic information on google
+        #retrieve the entries from the first page (intro.py Entry fields)
+        info = intro.IntroPage()
+
+        location = info.locationRetrieval()
+        radius = info.radiusRetrieval()
+        type = info.typeRetrieval()
+        GKey = APIkeys.googleKey()
+
+        #paramaters for places_nearby search 
+        params = {
+            'location': location,
+            'radius': radius,
+            'type': type
+        }
+        gplaces = googlemaps.Client(key = GKey)
+        search = gplaces.places_nearby(**params)
+
+        #filters the inputs to only the ones that are needed for the google api with this
+        google_opts = ['name', 'type', 'formatted_address', 'formatted_phone_number', 'rating', 'opening_hours/weekday_text']
+
+        #gplaces.place dump
+        info_dump = []
+        
+        #pagination in order to get all of the pages and display the options available
+        if 'next_page_token' in search.keys():
+            while 'next_page_token' in search.keys():
+                time.sleep(2)
+                params.update({'page_token': search['next_page_token']})
+                search = gplaces.places_nearby(**params)
+                for ids in search['results']:
+                    places_result = gplaces.place(place_id = ids['place_id'], fields = google_opts)
+                    # return places_result
+                    info_dump.append(places_result['result'])
+        
+        #returns the last dataframe here
+        for i in range(0, len(info_dump)):
+            if i == (len(info_dump) - 1):
+                df = pd.DataFrame(info_dump)
+                return print (df)
+
+
 
 
     #print out of the dataframe created above
@@ -135,5 +181,5 @@ class SchoolWindow():
         
         writer.save()
 
-        #error handling
+    #error handling
     

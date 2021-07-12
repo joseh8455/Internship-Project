@@ -55,7 +55,7 @@ class IntroPage(tk.Tk):
         resetButton = tk.Button(self.tk, text="Reset", command = self.resetFunction)
         resetButton.pack(pady = (15,10), padx=(10, 0))
 
-        googleButton = tk.Button(self.tk, text= "Gather more information", command= self.gatherInfo())
+        googleButton = tk.Button(self.tk, text= "Gather more information", command= lambda:[self.gatherInfo(), self.emptyFields()])
         googleButton.pack(pady = (15,10), padx=(10, 0),)
 
     #command function calls for the buttons
@@ -87,13 +87,22 @@ class IntroPage(tk.Tk):
          # error handling right here
          all_together = [type_info, radius, location]
 
-         for information in all_together:
-               if information == '':
+         if any(all_together) == '':
                     return messagebox.showerror(title="Error", message="Please fill out empty field")
         
          for location in location_options:
               if type_info != location:
                    return messagebox.showerror(title="Error", message="Please pick a valid location available to use")
+
+    def emptyFields(self):
+         type_info = type_entry.get().lower()
+         radius = radent.get()
+         location = locatent.get
+
+         all_together = [type_info, radius, location]
+
+         if any(all_together) == '':
+                    return messagebox.showerror(title="Error", message="Please fill out empty field")
           
     #seperate information grabber to run googlemaps library
     def locationRetrieval(self):
@@ -133,7 +142,7 @@ class IntroPage(tk.Tk):
     def zipCode(self):
          locator = Nominatim(user_agent="interface")
 
-         type_field = locator.geocode(locatent.get().lower(), addressdetails=True)
+         type_field = locator.geocode(locatent.get(), addressdetails=True)
 
          zip_code = type_field.raw['address']['postcode']
          return zip_code
