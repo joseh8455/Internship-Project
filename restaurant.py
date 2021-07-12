@@ -89,6 +89,7 @@ class RestaurantWindow():
                     # return places_result
                     info_dump.append(places_result['result'])
         
+        #returns the last dataframe here
         for i in range(0, len(info_dump)):
             if i == (len(info_dump) - 1):
                 df = pd.DataFrame(info_dump)

@@ -1,7 +1,9 @@
 import tkinter as tk
 from tkinter.constants import END
+from tkinter import messagebox
 
 from geopy.geocoders import Nominatim
+from requests.api import options
 import restaurant
 import schools
 
@@ -24,6 +26,7 @@ class IntroPage(tk.Tk):
         global locatent        
         self.locent = tk.Entry(self.tk)
         self.locent.pack(ipadx=80, ipady=5)
+        self.locent.focus()
         locatent = self.locent
 
         radius = tk.Label(self.tk, text="Mile Radius to search: (Max radius distance is 31 miles) ", font= ("Roboto"))
@@ -36,6 +39,14 @@ class IntroPage(tk.Tk):
         type = tk.Label(self.tk, text="Type of location you want to search for: ", font=("Roboto"))
         type.pack(padx=1, pady=4)
 
+        global location_options
+        location_options = ['school','restaurant']
+        api_formatted_options = '\n'.join(location_options)
+        basic_frame = tk.LabelFrame(self, text="Information retrieval options", font=("Roboto"))
+        basic_frame.pack(ipadx=10)
+        api_options = tk.Label(basic_frame, text= api_formatted_options, font=("Roboto"))
+        api_options.pack()
+
         global type_entry
         type_entry = tk.Entry(self.tk)
         type_entry.pack(ipadx=80, ipady=5)
@@ -44,7 +55,7 @@ class IntroPage(tk.Tk):
         resetButton = tk.Button(self.tk, text="Reset", command = self.resetFunction)
         resetButton.pack(pady = (15,10), padx=(10, 0))
 
-        googleButton = tk.Button(self.tk, text= "Gather more information", command= lambda: [self.gatherInfo(), self.emptyFields(), self.firstEmptyField(), self.secondEmptyField(), self.thirdEmptyField()])
+        googleButton = tk.Button(self.tk, text= "Gather more information", command= self.gatherInfo())
         googleButton.pack(pady = (15,10), padx=(10, 0),)
 
     #command function calls for the buttons
@@ -54,53 +65,12 @@ class IntroPage(tk.Tk):
         type_entry.delete(0, END)
 
      #if the fields are empty, send a error message that says to complete all the fields
-    def emptyFields(self):
-         location = locatent.get()
-         radius = radent.get()
-         types = type_entry.get()
-
-         if location  == "":
-          if radius == "":
-           if types == "":
-                empty_window = tk.Toplevel(self.tk)
-                empty_window.title("Error")
-                
-                error_message = tk.Label(empty_window, text="Please fill out all of the fields before you can continue", font = ("Robot"))
-                error_message.pack(pady=7, padx=7)
-     
-    def firstEmptyField(self):
-          location = locatent.get()
-
-          if location == "":
-                empty_window = tk.Toplevel(self.tk)
-                empty_window.title("Error")
-                
-                error_message = tk.Label(empty_window, text="Please fill out the first field before you can continue", font = ("Robot"))
-                error_message.pack(pady=7, padx=7)
-
-    def secondEmptyField(self):
-          radius = radent.get()
-
-          if radius == "":
-                empty_window = tk.Toplevel(self.tk)
-                empty_window.title("Error")
-                
-                error_message = tk.Label(empty_window, text="Please fill out the second before you can continue", font = ("Robot"))
-                error_message.pack(pady=7, padx=7)
-     
-    def thirdEmptyField(self):
-          types = type_entry.get()
-
-          if types == "":
-                empty_window = tk.Toplevel(self.tk)
-                empty_window.title("Error")
-                
-                error_message = tk.Label(empty_window, text="Please fill out the third field before you can continue", font = ("Robot"))
-                error_message.pack(pady=7, padx=7)
 
     #retrieve the input gathered and add a pop up with specified questions based off of the input entry
     def gatherInfo(self):
          type_info = type_entry.get().lower()
+         radius = radent.get()
+         location = locatent.get
 
          school_api_type = ['primary_school', 'school', 'secondary_school']
 
@@ -114,7 +84,17 @@ class IntroPage(tk.Tk):
                     school_window = schools.SchoolWindow()
                     return school_window.schoolWindow()
 
+         # error handling right here
+         all_together = [type_info, radius, location]
 
+         for information in all_together:
+               if information == '':
+                    return messagebox.showerror(title="Error", message="Please fill out empty field")
+        
+         for location in location_options:
+              if type_info != location:
+                   return messagebox.showerror(title="Error", message="Please pick a valid location available to use")
+          
     #seperate information grabber to run googlemaps library
     def locationRetrieval(self):
          locator = Nominatim(user_agent="interface")
@@ -149,4 +129,12 @@ class IntroPage(tk.Tk):
     def simpleRadius(self):
          radius = radent.get()
          return radius
+
+    def zipCode(self):
+         locator = Nominatim(user_agent="interface")
+
+         type_field = locator.geocode(locatent.get().lower(), addressdetails=True)
+
+         zip_code = type_field.raw['address']['postcode']
+         return zip_code
     

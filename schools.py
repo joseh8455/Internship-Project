@@ -95,7 +95,7 @@ class SchoolWindow():
         df = pd.DataFrame(data['schoolList'])       
         basic_result = df[list(user_entry)]
 
-        # #test2
+        #test2
         num_school = -1
         dump = []
 
@@ -103,40 +103,37 @@ class SchoolWindow():
             num_school+=1
 
             df2 = pd.DataFrame(data['schoolList'][num_school]['schoolYearlyDetails'])
+            #dump the dataframes created into the list
             dump.append(df2[list(intersection_set)])
 
+            #because all the dataframes that were appened to the list were seperate, this combines all of them into one big dataframe without repeating index numbers
             result = pd.concat(dump, ignore_index=True)
         
+        #retrieves the last dataframe in the list since for each one, when a new line is added, it prints out a new dataframe
         for i in range(0, len(result)):
             if i == (len(result) - 1):
                 result
-                
+
+        #this combines the first and second dataframe created into one big dataframe that will be printed out into an excel sheet to use       
         return pd.concat([basic_result, result],axis=1, ignore_index=False)
 
-        #this one doesnt work
-        # df2 = pd.DataFrame(data['schoolList'][0]['schoolYearlyDetails'])
-        # fitlered_info2 = df2[list(intersection_set)]
-
-        # combination = [fitlered_info, fitlered_info2]
-
-        # combo = pd.concat(combination, axis=0, ignore_index=True)
-
-        # print(combo)
 
 
-    #simple print out of this information that was printed out
+    #print out of the dataframe created above
     def PrintOut(self):
    
-        writer = pd.ExcelWriter('test_file.xlsx', engine='xlsxwriter')
+        writer = pd.ExcelWriter('SchoolData.xlsx', engine='xlsxwriter')
 
         df = self.SchoolData() 
-        df.to_excel(writer, sheet_name='my_analysis', index=False, na_rep='No Data Available')
+        df.to_excel(writer, sheet_name='Information Grabbed', index=False, na_rep='No Data Available')
 
 
         for column in df:
-            column_width = max(df[column].astype(str).map(len).max(), len(column)) + 2
+            column_width = max(df[column].astype(str).map(len).max(), len(column))
             col_idx = df.columns.get_loc(column)
-            writer.sheets['my_analysis'].set_column(col_idx, col_idx, column_width)
+            writer.sheets['Information Grabbed'].set_column(col_idx, col_idx, column_width)
         
         writer.save()
+
+        #error handling
     
