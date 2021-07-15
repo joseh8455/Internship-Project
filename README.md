@@ -8,3 +8,6 @@ Fix the UI so that its more simple to understand
 
 -----07/13/2021-----
 Restaurant supporting api 'Documenu' is giving back a status code 524 which theres nothing I can do there
+
+-----07/15/2021-----
+Have both school.py and restaurant.py work perfectly fine

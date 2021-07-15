@@ -1,5 +1,7 @@
+import os
 import time
 import tkinter as tk
+from tkinter import messagebox
 
 import googlemaps
 import pandas as pd
@@ -177,6 +179,7 @@ class SchoolWindow():
 
 
     #print out dataframes into an excel sheet
+    #the only issues is that it doesnt open the file created when the ask the user if they want to open it
     def PrintOut(self):
    
         writer = pd.ExcelWriter('SchoolData.xlsx', engine='xlsxwriter')
@@ -188,6 +191,19 @@ class SchoolWindow():
         df.to_excel(writer, sheet_name='Information Grabbed', index=False, na_rep='No Data Available')
 
         df2.to_excel(writer, sheet_name='Google Data', index=False, na_rep='No Data Available')
+
+        size = os.path.getsize(filename=writer)
+        if size > 0:
+             try:
+                test = messagebox.askyesno(title="Sucess!", message="Successfully created file. Do you wish to open it now? " + os.path.basename(writer))
+                if test == True:
+                    os.system("start EXCEL.EXE test8.xlsx")
+             except:
+                    print("Impossible to get here")
+        elif size == 0:
+            return messagebox.showerror("Error", "Error message.")
+        else:
+            return print("how did you get here?")
 
         writer.save()
         
