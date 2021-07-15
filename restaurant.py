@@ -165,9 +165,7 @@ class RestaurantWindow():
 
             data = resp.json()
             
-            if data['totalResults'] == 0:
-                continue
-            else:
+            if data['totalResults'] > 0:
                 df = pd.DataFrame(data['data'])
             
                 df_setup = list(api_list)
@@ -176,33 +174,36 @@ class RestaurantWindow():
                 df_holder.append(df[df_setup])
 
                 result = pd.concat(df_holder)
+            else:
+                continue
 
         for i in range(0, len(result)):
             if i == (len(result) - 1):
-                df2 = pd.DataFrame(result)
-                return df2
+               return result
 
     #this function makes it possible to run an async function in tkinter, without this, the function above will return back an error
     def test2(self):
         loop = asyncio.get_event_loop()
-        df = loop.run_until_complete( self.test() )
-        return df
+        return loop.run_until_complete( self.test() )
 
     #it prints out into seperate files but not together
     def PrintOut(self):
 
-        writer = pd.ExcelWriter('test5.xlsx', engine = 'xlsxwriter')
+        
         df1 = self.GoogleData()
         df2 = self.test2()
 
-        df2.to_excel(writer, sheet_name="Docu Data")
-        df1.to_excel(writer, sheet_name="Google Data")
-        size = os.path.getsize(filename="test5.xlsx")
+        with pd.ExcelWriter('test8.xlsx', engine='xlsxwriter') as writer:
+            df1.to_excel(writer, sheet_name='Google Data', na_rep="N/A")
+            df2.to_excel(writer, sheet_name='Documenu Data', na_rep="N/A")
+
+        
+        size = os.path.getsize(filename=writer)
         if size > 0:
              try:
                 test = messagebox.askyesno(title="Sucess!", message="Successfully created file. Do you wish to open it now? " + os.path.basename(writer))
                 if test == True:
-                    open(file= writer,  errors="ignore")
+                    open(file= writer,  errors="ignore", mode='a')
              except:
                     print("test")
         elif size == 0:
@@ -210,7 +211,7 @@ class RestaurantWindow():
         else:
             return print("how did you get here?")
         
-        writer.save()
+        # writer.save()
         
         # self.DocuDataParsed().to_excel(writer, sheet_name= "Documenu Data")
 
