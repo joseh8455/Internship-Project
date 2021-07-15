@@ -195,7 +195,7 @@ class RestaurantWindow():
 
         with pd.ExcelWriter('test8.xlsx', engine='xlsxwriter') as writer:
             df1.to_excel(writer, sheet_name='Google Data', na_rep="N/A")
-            df2.to_excel(writer, sheet_name='Documenu Data', na_rep="N/A")
+            # df2.to_excel(writer, sheet_name='Documenu Data', na_rep="N/A")
 
         
         size = os.path.getsize(filename=writer)
@@ -203,9 +203,9 @@ class RestaurantWindow():
              try:
                 test = messagebox.askyesno(title="Sucess!", message="Successfully created file. Do you wish to open it now? " + os.path.basename(writer))
                 if test == True:
-                    open(file= writer,  errors="ignore", mode='a')
+                    os.system("start EXCEL.EXE test8.xlsx")
              except:
-                    print("test")
+                    print("Impossible to get here")
         elif size == 0:
             return messagebox.showerror("Error", "Error message.")
         else:
