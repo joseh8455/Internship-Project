@@ -15,6 +15,7 @@ class IntroPage(tk.Tk):
          self.tk = tk.Tk()
 
     def FirstPage(self):
+         
         
         #window settings for app
         self.tk.title('Baldoor Information Gathering')
@@ -79,6 +80,17 @@ class IntroPage(tk.Tk):
          school_api_type = ['primary_school', 'school', 'secondary_school']
 
          #window for restaurant specific information gathering 
+         # error handling right here
+         all_together = [type_info, radius, location]
+
+         if any(all_together) == '':
+                    return messagebox.showerror(title="Error", message="Please fill out empty field")
+
+         if self.locationRetrieval() == None:
+              lambda:messagebox.showerror("Error", "Please correctly type in the address")
+         if self.radiusRetrieval() > 49889.7:
+              return messagebox.showerror("Error", "Please check how many miles you put in")
+
          if type_info == "restaurant":
               rest_window = restaurant.RestaurantWindow()
               return rest_window.restPage()
@@ -90,17 +102,12 @@ class IntroPage(tk.Tk):
 
          if type_info == "university":
                college_window = colleges.CollegeWindow()
-               return college_window.CollegeWindow()
+               return college_window.ColWindow()
 
-         # error handling right here
-         all_together = [type_info, radius, location]
-
-         if any(all_together) == '':
-                    return messagebox.showerror(title="Error", message="Please fill out empty field")
-        
          for location in location_options:
               if type_info != location:
                    return messagebox.showerror(title="Error", message="Please pick a valid location available to use")
+
 
     def emptyFields(self):
          type_info = type_entry.get().lower()
@@ -117,6 +124,7 @@ class IntroPage(tk.Tk):
          locator = Nominatim(user_agent="interface")
 
          type_field = locator.geocode(locatent.get().lower())
+
          return [type_field.latitude, type_field.longitude]
 
     def latLocation(self):

@@ -1,7 +1,7 @@
+import json
+import pprint
 import time
 import tkinter as tk
-
-import os
 
 import googlemaps
 import pandas as pd
@@ -12,48 +12,44 @@ import intro
 
 
 class CollegeWindow():
-    
-    def __init__(self):
-        self.tk = tk.Tk()
-        self.image = tk.PhotoImage(name= 'logo.png')
 
-    def CollegeWindow(self):
+
+    def __init__(self):
+        global base_url
+        self.Gkey = APIkeys.googleKey()
+        self.tk = tk.Tk()
+        base_url = "https://educationdata.urban.org/api/v1/college-university/"
+
+    def ColWindow(self):
+
         self.tk.title('Baldoor Information Gathering')
         self.tk.geometry('440x500')
-        
+     
+        #this is for the api that has data from 2019 years before (still updating for data in 2020?)
 
-        #basic information gathering for it to be used in the api link
-        #layout of UI (this is basic and doesnt look modern)
+        # google api information is here
+        global google_opts
+        google_opts = ['name', 'type', 'url', 'formatted_address', 'formatted_phone_number', 'price_level', 'rating', 'opening_hours/weekday_text', 'permanently_closed']
+        google_formtd = '\n'.join(google_opts)
 
-        global state_entry
-        state_code = tk.Label(self.tk, text="What is the state code you wish to get information on?", font= ("Roboto"))
-        state_code.pack()
-
-        state_entry = tk.Entry(self.tk)
-        state_entry.focus()
-        state_entry.pack(ipadx=70, pady=20)
-
-
-        global api_options_list
-        api_options_list = ['schoolName', 'phone', 'schoolLevel', 'numberOfStudents', 'teachersFulltime', 'percentFreeDiscLunch']
-        api_formatted_options = '\n'.join(api_options_list)
-
-        basic_info = tk.Label(self.tk, text = "Information you wish to retrieve: ", font=("Roboto"))
+        basic_info = tk.Label(self.tk, text = "Basic piece of information you wish to retrieve: ", font=("Roboto"))
         basic_info.pack()
 
-        basic_frame = tk.LabelFrame(self.tk, text="Information retrieval options", font=("Roboto"))
+        basic_frame = tk.LabelFrame(self.tk, text="Basic information options", font=("Roboto"))
         basic_frame.pack(ipadx=10)
-        api_options = tk.Label(basic_frame, text= api_formatted_options, font=("Roboto"))
-        api_options.pack()
+        basic_options = tk.Label(basic_frame, text= google_formtd, font=("Roboto"))
+        basic_options.pack()
+
 
         #able to be access entry information in any function i want with the global tag
         global basic_entry
         basic_entry = tk.Entry(self.tk, textvariable='goolemapsAPI')
+        basic_entry.focus()
         basic_entry.pack(ipadx=70, pady=20)
 
-        self.google_button = tk.Button(self.tk, text="Display Information", command = lambda: self.GoogleData())
+        self.google_button = tk.Button(self.tk, text="Display Information", command = lambda: self.PrintOut())
         self.google_button.pack(padx=10)
-    
+
     def GoogleData(self):
         #this is just basic information on google
         #retrieve the entries from the first page (intro.py Entry fields)
@@ -63,6 +59,8 @@ class CollegeWindow():
         radius = info.radiusRetrieval()
         type = info.typeRetrieval()
         GKey = APIkeys.googleKey()
+
+        user_entry = basic_entry.get().split()
 
         #paramaters for places_nearby search 
         params = {
@@ -74,7 +72,7 @@ class CollegeWindow():
         search = gplaces.places_nearby(**params)
 
         #filters the inputs to only the ones that are needed for the google api with this
-        google_opts = ['name', 'type', 'formatted_address', 'formatted_phone_number', 'rating', 'opening_hours/weekday_text']
+        intersection_set = list(set.intersection(set(google_opts ), set(user_entry)))
 
         #gplaces.place dump
         info_dump = []
@@ -86,25 +84,29 @@ class CollegeWindow():
                 params.update({'page_token': search['next_page_token']})
                 search = gplaces.places_nearby(**params)
                 for ids in search['results']:
-                    places_result = gplaces.place(place_id = ids['place_id'], fields = google_opts)
+                    places_result = gplaces.place(place_id = ids['place_id'], fields = intersection_set)
                     # return places_result
+                    info_dump.append(places_result['result'])
+        else:
+            for ids in search['results']:
+                    places_result = gplaces.place(place_id = ids['place_id'], fields = intersection_set)
                     info_dump.append(places_result['result'])
         
         #returns the last dataframe here
         for i in range(0, len(info_dump)):
             if i == (len(info_dump) - 1):
                 df = pd.DataFrame(info_dump)
-                print (df)
+                return (df)
+
+    def CollegeAPI(self):
+        print('placeholder')
+
+
 
     def PrintOut(self):
-   
-        writer = pd.ExcelWriter('CollegeData.xlsx', engine='xlsxwriter')
 
-        #information retained from school digger, if you want to buy api license you can get this information and more information (right now just displays dummy data)
-        df2 = self.GoogleData()
 
-        df2.to_excel(writer, sheet_name='Google Data', index=False, na_rep='N/A')
-
+        self.GoogleData().to_excel('UniversityData.xlsx', sheet_name='Google Data', index=False, na_rep='N/A')
         #auto adjust rows width in excel
         # for column in df2:
         #     column_width = max(df2[column].astype(str).map(len).max(), len(column))

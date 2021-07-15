@@ -52,9 +52,11 @@ class SchoolWindow():
         state_entry.pack(ipadx=70, pady=20)
 
 
-        global api_options_list
+        global api_options_list, google_opts
         api_options_list = ['schoolName', 'phone', 'schoolLevel', 'numberOfStudents', 'teachersFulltime', 'percentFreeDiscLunch']
+        google_opts = ['name', 'type', 'formatted_address', 'formatted_phone_number', 'rating', 'opening_hours/weekday_text']
         api_formatted_options = '\n'.join(api_options_list)
+        google_formatted = '\n'.join(google_opts)
 
         basic_info = tk.Label(self.tk, text = "Information you wish to retrieve: ", font=("Roboto"))
         basic_info.pack()
@@ -63,10 +65,13 @@ class SchoolWindow():
         basic_frame.pack(ipadx=10)
         api_options = tk.Label(basic_frame, text= api_formatted_options, font=("Roboto"))
         api_options.pack()
+        google_options = tk.Label(basic_frame, text = google_formatted, font = ("Roboto"))
+        google_options.pack()
 
         #able to be access entry information in any function i want with the global tag
         global basic_entry
         basic_entry = tk.Entry(self.tk, textvariable='goolemapsAPI')
+        basic_entry.focus()
         basic_entry.pack(ipadx=70, pady=20)
 
         self.google_button = tk.Button(self.tk, text="Display Information", command = lambda: self.PrintOut())
@@ -95,7 +100,7 @@ class SchoolWindow():
 
 
         #this one is works perfectly fine as is
-        df = pd.DataFrame(data['schoolList'])       
+        df = pd.DataFrame(data['schoolList'])      
         basic_result = df[list(user_list)]
 
         #test2
@@ -104,11 +109,10 @@ class SchoolWindow():
 
         while num_school != data['numberOfSchools']-1:
             num_school+=1
-
             df2 = pd.DataFrame(data['schoolList'][num_school]['schoolYearlyDetails'])
-            print (df2)
-            #dump the dataframes created into the list
-            dump.append(df2[list(intersection_set)])
+            #dump the dataframes created into the list, use of head(1) to get the first element since there are several dictionaries inside the list, we want the first
+            #one which is the latest information (2020)
+            dump.append(df2[list(intersection_set)].head(1))
 
             #because all the dataframes that were appened to the list were seperate, this combines all of them into one big dataframe without repeating index numbers
             result = pd.concat(dump, ignore_index=True)
@@ -131,6 +135,8 @@ class SchoolWindow():
         type = info.typeRetrieval()
         GKey = APIkeys.googleKey()
 
+        user_entry = basic_entry.get().split()
+
         #paramaters for places_nearby search 
         params = {
             'location': location,
@@ -141,7 +147,7 @@ class SchoolWindow():
         search = gplaces.places_nearby(**params)
 
         #filters the inputs to only the ones that are needed for the google api with this
-        google_opts = ['name', 'type', 'formatted_address', 'formatted_phone_number', 'rating', 'opening_hours/weekday_text']
+        intersection_set = list(set.intersection(set(google_opts ), set(user_entry)))
 
         #gplaces.place dump
         info_dump = []
@@ -153,8 +159,12 @@ class SchoolWindow():
                 params.update({'page_token': search['next_page_token']})
                 search = gplaces.places_nearby(**params)
                 for ids in search['results']:
-                    places_result = gplaces.place(place_id = ids['place_id'], fields = google_opts)
+                    places_result = gplaces.place(place_id = ids['place_id'], fields = intersection_set)
                     # return places_result
+                    info_dump.append(places_result['result'])
+        else:
+            for ids in search['results']:
+                    places_result = gplaces.place(place_id = ids['place_id'], fields = intersection_set)
                     info_dump.append(places_result['result'])
         
         #returns the last dataframe here
