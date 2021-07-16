@@ -31,7 +31,7 @@ class RestaurantWindow():
      
 
         global google_opts, api_options_list
-        google_opts = ['name', 'type', 'url', 'formatted_address', 'formatted_phone_number', 'price_level', 'rating', 'opening_hours/weekday_text', 'permanently_closed']
+        google_opts = ['name', 'url', 'formatted_address', 'formatted_phone_number', 'price_level', 'rating', 'opening_hours/weekday_text', 'permanently_closed']
         api_options_list = ['price_range','cuisines', 'subsection','menu_item_name', 'menu_item_price']
         google_formtd = '\n'.join(google_opts)
         api_formatted_options = '\n'.join(api_options_list)
@@ -79,7 +79,6 @@ class RestaurantWindow():
         intersection_set = list(set.intersection(set(google_opts ), set(entries)))
 
         #gplaces.place dump
-        
         info_dump = []
         
         #pagination in order to get all of the pages and display the options available
@@ -193,9 +192,9 @@ class RestaurantWindow():
         df1 = self.GoogleData()
         df2 = self.test2()
 
-        with pd.ExcelWriter('test8.xlsx', engine='xlsxwriter') as writer:
-            df1.to_excel(writer, sheet_name='Google Data', na_rep="N/A")
-            # df2.to_excel(writer, sheet_name='Documenu Data', na_rep="N/A")
+        with pd.ExcelWriter(path=r'C:\Users\Jhernandez\Downloads\RestaurantData.xlsx', engine='xlsxwriter') as writer:
+            df1.to_excel(writer, sheet_name='Google Data', na_rep="N/A", index=False)
+            df2.to_excel(writer, sheet_name='Documenu Data', na_rep="N/A", index=False)
 
         
         size = os.path.getsize(filename=writer)
@@ -203,7 +202,7 @@ class RestaurantWindow():
              try:
                 test = messagebox.askyesno(title="Sucess!", message="Successfully created file. Do you wish to open it now? " + os.path.basename(writer))
                 if test == True:
-                    os.system("start EXCEL.EXE test8.xlsx")
+                    os.system(r"start EXCEL.EXE C:\Users\Jhernandez\Downloads\RestaurantData.xlsx")
              except:
                     print("Impossible to get here")
         elif size == 0:
@@ -212,6 +211,3 @@ class RestaurantWindow():
             return print("how did you get here?")
         
         # writer.save()
-        
-        # self.DocuDataParsed().to_excel(writer, sheet_name= "Documenu Data")
-

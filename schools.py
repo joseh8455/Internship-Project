@@ -19,7 +19,7 @@ api_options_list = None
 state_entry = None
 zip_entry = None
 specific_digURL = None
-
+google_opts = None
 
 
 class SchoolWindow():
@@ -45,30 +45,22 @@ class SchoolWindow():
         #basic information gathering for it to be used in the api link
         #layout of UI (this is basic and doesnt look modern)
 
-        global state_entry
-        state_code = tk.Label(self.tk, text="What is the state code you wish to get information on?", font= ("Roboto"))
-        state_code.pack()
-
-        state_entry = tk.Entry(self.tk)
-        state_entry.focus()
-        state_entry.pack(ipadx=70, pady=20)
-
-
         global api_options_list, google_opts
-        api_options_list = ['schoolName', 'phone', 'schoolLevel', 'numberOfStudents', 'teachersFulltime', 'percentFreeDiscLunch']
-        google_opts = ['name', 'type', 'formatted_address', 'formatted_phone_number', 'rating', 'opening_hours/weekday_text']
-        api_formatted_options = '\n'.join(api_options_list)
+        google_opts = ['name', 'formatted_address', 'formatted_phone_number', 'rating', 'opening_hours/weekday_text','permanently_closed']
         google_formatted = '\n'.join(google_opts)
+
+        api_options_list = ['schoolLevel', 'numberOfStudents', 'teachersFulltime', 'percentFreeDiscLunch']
+        api_formatted_options = '\n'.join(api_options_list)
 
         basic_info = tk.Label(self.tk, text = "Information you wish to retrieve: ", font=("Roboto"))
         basic_info.pack()
 
         basic_frame = tk.LabelFrame(self.tk, text="Information retrieval options", font=("Roboto"))
         basic_frame.pack(ipadx=10)
-        api_options = tk.Label(basic_frame, text= api_formatted_options, font=("Roboto"))
-        api_options.pack()
         google_options = tk.Label(basic_frame, text = google_formatted, font = ("Roboto"))
         google_options.pack()
+        api_options = tk.Label(basic_frame, text= api_formatted_options, font=("Roboto"))
+        api_options.pack()
 
         #able to be access entry information in any function i want with the global tag
         global basic_entry
@@ -89,11 +81,13 @@ class SchoolWindow():
 
         #get all the keys thanks to user entries
         intersection_set = set.intersection(set(more_indepth ), set(user_entry))
-        user_list = set.intersection(set(basic_info), set(user_entry))
+        user_list = list(set.intersection(set(basic_info), set(user_entry)))
+        user_list.insert(0,'schoolName')
+        user_list.insert(1,'phone')
         
         #retrieve information that will be used in the url
-        state_info = state_entry.get()
         getter = intro.IntroPage()
+        state_info = getter.stateRetrieval()
         zip_code = getter.zipCode()
 
         #url example -> https://api.schooldigger.com/v1.2/schools?st=NY&zip=10474&appID=639d1add&appKey=1cb4b90b8078b87d24aa6b6821993a24
@@ -103,7 +97,7 @@ class SchoolWindow():
 
         #this one is works perfectly fine as is
         df = pd.DataFrame(data['schoolList'])      
-        basic_result = df[list(user_list)]
+        basic_result = df[user_list]
 
         #test2
         num_school = -1
@@ -182,30 +176,28 @@ class SchoolWindow():
     #the only issues is that it doesnt open the file created when the ask the user if they want to open it
     def PrintOut(self):
    
-        writer = pd.ExcelWriter('SchoolData.xlsx', engine='xlsxwriter')
+        writer = pd.ExcelWriter(path=r'C:\Users\Jhernandez\Downloads\SchoolData.xlsx', engine='xlsxwriter')
 
         #information retained from school digger, if you want to buy api license you can get this information and more information (right now just displays dummy data)
         df = self.SchoolData() 
         df2 = self.GoogleData()
 
         df.to_excel(writer, sheet_name='Information Grabbed', index=False, na_rep='No Data Available')
-
         df2.to_excel(writer, sheet_name='Google Data', index=False, na_rep='No Data Available')
+        writer.save()
 
+        #this will let the user open up the file that has just been created
         size = os.path.getsize(filename=writer)
         if size > 0:
-             try:
+            try:
                 test = messagebox.askyesno(title="Sucess!", message="Successfully created file. Do you wish to open it now? " + os.path.basename(writer))
                 if test == True:
-                    os.system("start EXCEL.EXE test8.xlsx")
-             except:
+                    os.system(r"start EXCEL.EXE C:\Users\Jhernandez\Downloads\SchoolData.xlsx")
+            except:
                     print("Impossible to get here")
-        elif size == 0:
-            return messagebox.showerror("Error", "Error message.")
         else:
-            return print("how did you get here?")
+            return messagebox.showerror("Error", "Error message.")
 
-        writer.save()
         
         # #auto adjust rows width in excel
         # for column in df:

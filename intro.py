@@ -1,12 +1,14 @@
 import tkinter as tk
-from tkinter.constants import END
 from tkinter import messagebox
+from tkinter.constants import END
 
+import addfips
+import us
 from geopy.geocoders import Nominatim
-from requests.api import options
+
+import colleges
 import restaurant
 import schools
-import colleges
 
 
 class IntroPage(tk.Tk):
@@ -162,4 +164,35 @@ class IntroPage(tk.Tk):
 
          zip_code = type_field.raw['address']['postcode']
          return zip_code
+
+    def stateRetrieval(self):
+         locator = Nominatim(user_agent="interface")
+         type_field = locator.geocode(locatent.get(), addressdetails=True)
+
+         state_long = type_field.raw['address']['state']
+
+         state_abbr = us.states.lookup(state_long)
+         return state_abbr.abbr
+
+    def statefipsRetrieval(self):
+         locator = Nominatim(user_agent="interface")
+         type_field = locator.geocode(locatent.get(), addressdetails=True)
+
+         state_long = type_field.raw['address']['state']
+
+         state_abbr = us.states.lookup(state_long)
+         return state_abbr.fips
+    
+    def countyFIPSRetrieval(self):
+         locator = Nominatim(user_agent="interface")
+         af = addfips.AddFIPS()
+
+         type_field = locator.geocode(locatent.get(), addressdetails=True)
+
+         state_long = type_field.raw['address']['state']
+         county_name = type_field.raw['address']['county']
+
+         county_fips = af.get_county_fips(county=county_name, state=state_long)
+         return county_fips
+
     
