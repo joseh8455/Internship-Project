@@ -1,5 +1,3 @@
-#status code 524 on seperate api call
-
 import asyncio
 import os
 import time
@@ -164,6 +162,7 @@ class RestaurantWindow():
 
             data = resp.json()
             
+            #skip over the empty responses if there is not results to be printed out
             if data['totalResults'] > 0:
                 df = pd.DataFrame(data['data'])
             

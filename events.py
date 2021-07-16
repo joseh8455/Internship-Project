@@ -1,3 +1,5 @@
+#you need an premium account for meetup in order to be able to retrieve infrom from this api
+
 import requests
 import pprint
 import pandastable

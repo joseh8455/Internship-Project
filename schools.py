@@ -204,6 +204,3 @@ class SchoolWindow():
         #     column_width = max(df[column].astype(str).map(len).max(), len(column))
         #     col_idx = df.columns.get_loc(column)
         #     writer.sheets['Information Grabbed'].set_column(col_idx, col_idx, column_width)
-
-    #error handling
-    

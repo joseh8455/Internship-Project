@@ -1,4 +1,3 @@
-import json
 import os
 import pprint
 import time
@@ -8,7 +7,6 @@ from tkinter import messagebox
 import googlemaps
 import pandas as pd
 import requests
-import asyncio
 
 import APIkeys
 import intro
@@ -26,7 +24,7 @@ class CollegeWindow():
         self.tk.title('Baldoor Information Gathering')
         self.tk.geometry('440x500')
      
-        #this is for the api that has data from 2019 years before (still updating for data in 2020?)
+        #this is for the api that has data from 2019
 
         # google api information is here
         global google_opts, api_options
