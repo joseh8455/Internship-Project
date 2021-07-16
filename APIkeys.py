@@ -2,7 +2,7 @@
 
 #google key
 def googleKey():
-    return 'AIzaSyCRXc9F2Gy1OSvIyKQRgdp1W24ULvYWC-U'
+    return ''
 
 def docuKey():
     return 'bbb8c7c2125a69ec934db22f6f8eea99'
