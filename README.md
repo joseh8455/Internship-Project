@@ -11,3 +11,6 @@ Restaurant supporting api 'Documenu' is giving back a status code 524 which ther
 
 -----07/15/2021-----
 Have both school.py and restaurant.py work perfectly fine
+
+-----07/16/2021-----
+To get this program to run, you just need to run driver.py
